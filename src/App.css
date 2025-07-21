@@ -18,3 +18,59 @@ h1 {
   color: #fff;
   border: none;
 }
+.galaxy-background {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  z-index: 0;
+}
+
+.galaxy-background::before,
+.galaxy-background::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0,
+    rgba(255, 255, 255, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  animation: rotateStars 120s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.galaxy-background::after {
+  background: repeating-radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.05) 0,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation-duration: 180s;
+}
+
+@keyframes rotateStars {
+  from {
+    transform: rotate(0deg) translate(-25%, -25%);
+  }
+  to {
+    transform: rotate(360deg) translate(-25%, -25%);
+  }
+}
+.card {
+  border-radius: 1rem;
+}
+
+.card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
