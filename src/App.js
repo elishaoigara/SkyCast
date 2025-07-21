@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SearchBar from './components/SearchBar';
 import Weather from './components/Weather';
+import Footer from './components/Footer'; // ✅ Footer import
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -25,12 +26,13 @@ function App() {
   };
 
   return (
-    <div className="App bg-dark text-light min-vh-100 py-5">
-      <div className="container">
+    <div className="App bg-dark text-light min-vh-100 d-flex flex-column">
+      <div className="container flex-grow-1">
         <h1 className="text-center mb-4">🌤️ SkyCast</h1>
         <SearchBar onSearch={fetchWeather} />
         {weatherData && <Weather data={weatherData} />}
       </div>
+      <Footer /> {/* ✅ Footer here */}
     </div>
   );
 }

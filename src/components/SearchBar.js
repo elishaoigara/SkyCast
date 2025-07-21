@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './SearchBar.css';
 
 function SearchBar({ onSearch, loading }) {
   const [city, setCity] = useState('');
@@ -13,28 +14,28 @@ function SearchBar({ onSearch, loading }) {
 
   return (
     <form onSubmit={handleSubmit} className="my-4">
-      <div className="input-group">
+      <div className="input-group shadow-sm search-bar-container">
         <input
           type="text"
-          className="form-control bg-dark text-white border-secondary"
-          placeholder="Search for a city..."
+          className="form-control bg-primary text-white border-0 py-2 px-4"
+          placeholder="🔍 Search for a city..."
           value={city}
           onChange={(e) => setCity(e.target.value)}
           disabled={loading}
         />
         <button
           type="submit"
-          className="btn btn-outline-light"
+          className="btn btn-info text-white px-4"
           disabled={loading}
         >
           {loading ? (
             <span
-              className="spinner-border spinner-border-sm text-light"
+              className="spinner-border spinner-border-sm text-white"
               role="status"
               aria-hidden="true"
             ></span>
           ) : (
-            <i className="bi bi-search"></i>
+            'Go'
           )}
         </button>
       </div>
