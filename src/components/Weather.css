@@ -3,40 +3,46 @@
   transition: background 1s ease-in-out;
   background-size: cover;
   background-position: center;
+  padding: 1.5rem;
 }
 
-/* Clear weather */
+/* Add responsiveness */
+@media (max-width: 768px) {
+  .weather-card h2 {
+    font-size: 1.4rem;
+  }
+
+  .weather-card h4 {
+    font-size: 1.1rem;
+  }
+
+  .weather-card p {
+    font-size: 0.95rem;
+  }
+}
+
+/* Existing gradient styles (unchanged) */
 .clear-day {
   background: linear-gradient(to top, #87ceeb, #fefcea);
 }
-
 .clear-night {
   background: linear-gradient(to top, #0f2027, #203a43, #2c5364);
 }
-
-/* Cloudy */
 .clouds-day {
   background: linear-gradient(to top, #d7d2cc, #304352);
 }
-
 .clouds-night {
   background: linear-gradient(to top, #2c3e50, #4ca1af);
 }
-
-/* Rainy */
 .rain-day {
   background: linear-gradient(to top, #4b6cb7, #182848);
 }
-
 .rain-night {
   background: linear-gradient(to top, #1e3c72, #2a5298);
 }
-
-/* Snow */
 .snow-day {
   background: linear-gradient(to top, #e6dada, #274046);
 }
-
 .snow-night {
   background: linear-gradient(to top, #3e5151, #decba4);
 }
