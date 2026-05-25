@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WeatherProvider, useWeather } from './context/WeatherContext';
 import SearchBar from './components/SearchBar';
 import Weather from './components/Weather';
@@ -33,6 +33,15 @@ function AppContent() {
   } = useWeather();
   
   const [geoLoading, setGeoLoading] = useState(false);
+
+  useEffect(() => {
+    if (!process.env.REACT_APP_WEATHER_API_KEY) {
+      console.warn(
+        'WARNING: REACT_APP_WEATHER_API_KEY is not set. ' +
+        'Please create a .env file with REACT_APP_WEATHER_API_KEY=your_api_key'
+      );
+    }
+  }, []);
 
   const handleSearch = async (city) => {
     try {
@@ -77,6 +86,14 @@ function AppContent() {
               geoLoading={geoLoading} 
               onLocationFound={handleLocationFound} 
             />
+            
+            {loading && (
+              <div className="d-flex justify-content-center my-4">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            )}
             
             {error && (
               <div className="alert alert-danger mt-3">

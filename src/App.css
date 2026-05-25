@@ -6,8 +6,11 @@ body {
     Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #1a1a2e;
+  background-color: #121212;
   transition: background-color 0.5s ease;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 [data-theme='light'] body {
