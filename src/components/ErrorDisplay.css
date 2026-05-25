@@ -1,0 +1,101 @@
+.error-display {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+[data-theme='light'] .error-display {
+  background: rgba(255, 107, 107, 0.05);
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+.error-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  text-align: left;
+}
+
+.error-icon {
+  font-size: 2rem;
+  color: #ff6b6b;
+  flex-shrink: 0;
+}
+
+.error-message {
+  flex: 1;
+}
+
+.error-title {
+  margin: 0 0 0.5rem 0;
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.error-text {
+  margin: 0;
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  color: inherit;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.error-retry-btn {
+  padding: 0.75rem 1.5rem;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.error-retry-btn:hover {
+  background: #ff5252;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+.error-retry-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .error-display {
+    padding: 1.25rem;
+  }
+  
+  .error-content {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+  
+  .error-message {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .error-display {
+    padding: 1rem;
+  }
+  
+  .error-icon {
+    font-size: 1.5rem;
+  }
+  
+  .error-retry-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}

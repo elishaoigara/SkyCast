@@ -16,3 +16,52 @@ button.btn:hover {
   background-color: #007bff;
   transition: background-color 0.3s ease;
 }
+
+.input-group .btn-info {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group .geolocation-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .search-bar-container {
+    border-radius: 2rem;
+  }
+  
+  input.form-control {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem !important;
+  }
+  
+  button.btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .input-group {
+    flex-wrap: wrap;
+  }
+  
+  input.form-control {
+    border-radius: 2rem !important;
+    margin-bottom: 0.5rem;
+  }
+  
+  .input-group .btn-info {
+    border-radius: 2rem !important;
+    width: auto;
+  }
+  
+  .geolocation-wrapper {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}

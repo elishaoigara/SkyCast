@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import GeolocationButton from './GeolocationButton';
 import './SearchBar.css';
 
-function SearchBar({ onSearch, loading }) {
+function SearchBar({ onSearch, loading, geoLoading, onLocationFound }) {
   const [city, setCity] = useState('');
 
   const handleSubmit = (e) => {
@@ -21,12 +22,14 @@ function SearchBar({ onSearch, loading }) {
           placeholder="🔍 Search for a city..."
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          disabled={loading}
+          disabled={loading || geoLoading}
+          aria-label="Search for a city"
         />
         <button
           type="submit"
           className="btn btn-info text-white px-4"
-          disabled={loading}
+          disabled={loading || geoLoading || !city.trim()}
+          aria-label="Search"
         >
           {loading ? (
             <span
@@ -38,6 +41,10 @@ function SearchBar({ onSearch, loading }) {
             'Go'
           )}
         </button>
+        <GeolocationButton 
+          onLocationFound={onLocationFound} 
+          loading={geoLoading}
+        />
       </div>
     </form>
   );

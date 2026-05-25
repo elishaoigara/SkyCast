@@ -1,0 +1,109 @@
+.geolocation-wrapper {
+  position: relative;
+}
+
+.geolocation-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  padding: 0;
+}
+
+[data-theme='light'] .geolocation-btn {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.geolocation-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+[data-theme='light'] .geolocation-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.geolocation-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.geolocation-icon {
+  font-size: 1.5rem;
+  color: #4ecdc4;
+  transition: all 0.3s ease;
+}
+
+.geolocation-btn:hover:not(:disabled) .geolocation-icon {
+  color: #7eddd6;
+}
+
+.geolocation-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #4ecdc4;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+[data-theme='light'] .geolocation-spinner {
+  border-color: rgba(0, 0, 0, 0.3);
+  border-top-color: #4ecdc4;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.geolocation-error {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 107, 107, 0.9);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .geolocation-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .geolocation-icon {
+    font-size: 1.25rem;
+  }
+  
+  .geolocation-error {
+    font-size: 0.7rem;
+    max-width: 200px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .geolocation-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .geolocation-icon {
+    font-size: 1.1rem;
+  }
+}

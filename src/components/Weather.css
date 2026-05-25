@@ -3,11 +3,92 @@
   transition: background 1s ease-in-out;
   background-size: cover;
   background-position: center;
-  padding: 1.5rem;
+  padding: clamp(1rem, 4vw, 2rem);
+  position: relative;
+  overflow: hidden;
+  min-height: 300px;
+}
+
+.weather-content {
+  position: relative;
+  z-index: 2;
+}
+
+.weather-title {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.weather-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.weather-icon {
+  font-size: clamp(3rem, 10vw, 5rem);
+  color: #ffd700;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.weather-condition {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  text-transform: capitalize;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  margin-bottom: 0.5rem !important;
+}
+
+.weather-temp {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.weather-details {
+  position: relative;
+  z-index: 2;
+}
+
+.weather-detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(5px);
+}
+
+.detail-icon {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+}
+
+.detail-label {
+  font-size: clamp(0.7rem, 2vw, 0.85rem);
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: clamp(0.9rem, 3vw, 1.1rem);
+  font-weight: 600;
+}
+
+.weather-time {
+  opacity: 0.9;
+  font-size: clamp(0.75rem, 2.5vw, 0.9rem);
 }
 
 /* Add responsiveness */
 @media (max-width: 768px) {
+  .weather-card {
+    padding: 1.25rem;
+  }
+
   .weather-card h2 {
     font-size: 1.4rem;
   }
@@ -18,6 +99,42 @@
 
   .weather-card p {
     font-size: 0.95rem;
+  }
+  
+  .weather-detail-item {
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .weather-card {
+    padding: 1rem;
+  }
+  
+  .weather-detail-item {
+    padding: 0.3rem;
+  }
+  
+  .detail-label {
+    font-size: 0.65rem;
+  }
+  
+  .detail-value {
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 320px) and (max-width: 400px) {
+  .weather-title {
+    font-size: 1.2rem;
+  }
+  
+  .weather-temp {
+    font-size: 2rem;
+  }
+  
+  .weather-icon {
+    font-size: 2.5rem;
   }
 }
 
@@ -45,4 +162,22 @@
 }
 .snow-night {
   background: linear-gradient(to top, #3e5151, #decba4);
+}
+.thunderstorm-day,
+.drizzle-day {
+  background: linear-gradient(to top, #3a404a, #1e2530);
+}
+.thunderstorm-night,
+.drizzle-night {
+  background: linear-gradient(to top, #0f0f0f, #1a1a2e);
+}
+.fog-day,
+.mist-day,
+.haze-day {
+  background: linear-gradient(to top, #606c88, #3f4c6b);
+}
+.fog-night,
+.mist-night,
+.haze-night {
+  background: linear-gradient(to top, #232526, #414345);
 }
