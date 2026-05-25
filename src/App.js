@@ -19,8 +19,6 @@ function AppContent() {
     toggleUnits,
     weatherData,
     setWeatherData,
-    forecastData,
-    setForecastData,
     loading,
     setLoading,
     error,
@@ -77,7 +75,7 @@ function AppContent() {
     if (location.lat && location.lon) {
       fetchWeather(null, location.lat, location.lon);
     }
-  }, [units]);
+  }, [units, location.lat, location.lon]);
 
   const handleLocationFound = (loc) => {
     setGeoLoading(true);
