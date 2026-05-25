@@ -75,7 +75,7 @@ function AppContent() {
     if (location.lat && location.lon) {
       fetchWeather(null, location.lat, location.lon);
     }
-  }, [units, location.lat, location.lon]);
+  }, [units, location.lat, location.lon, fetchWeather]);
 
   const handleLocationFound = (loc) => {
     setGeoLoading(true);
