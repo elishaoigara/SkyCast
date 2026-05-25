@@ -1,67 +1,60 @@
 .search-bar-container {
-  border-radius: 50px;
+  border-radius: 0.5rem;
   overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-input.form-control::placeholder {
-  color: #e0e0ff;
+.search-bar-focused {
+  box-shadow: 0 0 25px rgba(0, 102, 255, 0.4), 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: scale(1.01);
 }
 
-input.form-control:focus {
-  box-shadow: 0 0 10px rgba(0, 102, 255, 0.5);
-  border-color: transparent;
+.search-input-focused {
+  box-shadow: 0 0 20px rgba(0, 102, 255, 0.6);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
 }
 
-button.btn:hover {
-  background-color: #007bff;
-  transition: background-color 0.3s ease;
+.search-btn-focused {
+  box-shadow: 0 0 15px rgba(0, 102, 255, 0.5);
+  transition: all 0.3s ease;
 }
 
-.input-group .btn-info {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+/* Custom rotating spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.input-group .geolocation-wrapper {
-  display: flex;
-  align-items: center;
+.custom-spinner {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  vertical-align: text-bottom;
+  border: 3px solid transparent;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 576px) {
   .search-bar-container {
-    border-radius: 2rem;
+    flex-direction: column;
   }
   
-  input.form-control {
-    font-size: 0.9rem;
-    padding: 0.5rem 0.75rem !important;
+  .search-bar-container input {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
   }
   
-  button.btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .input-group {
-    flex-wrap: wrap;
+  .search-bar-container button {
+    border-radius: 0 !important;
   }
   
-  input.form-control {
-    border-radius: 2rem !important;
-    margin-bottom: 0.5rem;
-  }
-  
-  .input-group .btn-info {
-    border-radius: 2rem !important;
-    width: auto;
-  }
-  
-  .geolocation-wrapper {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+  .geolocation-btn-wrapper {
+    margin-top: 0.5rem;
   }
 }

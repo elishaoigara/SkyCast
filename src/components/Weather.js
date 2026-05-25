@@ -1,31 +1,132 @@
 import React from 'react';
-import { WiDaySunny, WiCloudy, WiRain, WiSnow, WiThunderstorm, WiFog, WiNightClear, WiNightCloudy } from 'react-icons/wi';
+import { motion } from 'framer-motion';
+import { WiThunderstorm, WiRain, WiSnow, WiFog, WiDaySunny, WiNightClear, WiNightCloudy, WiCloudy } from 'react-icons/wi';
 import './Weather.css';
-import Clouds from './Clouds';
 
-const getWeatherIcon = (condition, isDay) => {
-  const conditionLower = condition.toLowerCase();
-  
-  if (!isDay) {
-    if (conditionLower.includes('clear')) return <WiNightClear className="weather-icon" />;
-    if (conditionLower.includes('cloud')) return <WiNightCloudy className="weather-icon" />;
+const AnimatedWeatherIcon = ({ condition, isDay }) => {
+  const cond = condition.toLowerCase();
+
+  // Rain animation
+  if (cond.includes('drizzle') || cond.includes('rain')) {
+    return (
+      <div className="animated-icon-container rain-icon">
+        {Array.from({ length: 7 }, (_, i) => (
+          <motion.div
+            key={i}
+            className="rain-drop"
+            style={{ left: `${15 + i * 12}%` }}
+            animate={{ y: [0, 60], opacity: [0, 1, 0] }}
+            transition={{
+              duration: 0.8 + Math.random() * 0.4,
+              repeat: Infinity,
+              ease: 'linear',
+              delay: i * 0.15,
+            }}
+          />
+        ))}
+      </div>
+    );
   }
-  
-  if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
-    return <WiThunderstorm className="weather-icon" />;
-  } else if (conditionLower.includes('drizzle') || conditionLower.includes('rain')) {
-    return <WiRain className="weather-icon" />;
-  } else if (conditionLower.includes('snow') || conditionLower.includes('blizzard')) {
-    return <WiSnow className="weather-icon" />;
-  } else if (conditionLower.includes('clear') || conditionLower.includes('sunny')) {
-    return <WiDaySunny className="weather-icon" />;
-  } else if (conditionLower.includes('cloud')) {
-    return <WiCloudy className="weather-icon" />;
-  } else if (conditionLower.includes('fog') || conditionLower.includes('mist')) {
-    return <WiFog className="weather-icon" />;
+
+  // Clear / Sunny animation
+  if ((cond.includes('clear') || cond.includes('sunny')) && isDay) {
+    return (
+      <div className="animated-icon-container sun-icon">
+        <motion.div
+          className="sun-glow"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="sun-core"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <WiDaySunny className="weather-icon sun-icon-inner" />
+        </motion.div>
+      </div>
+    );
   }
-  
-  return isDay ? <WiDaySunny className="weather-icon" /> : <WiNightClear className="weather-icon" />;
+
+  // Clouds animation
+  if (cond.includes('cloud')) {
+    return (
+      <div className="animated-icon-container cloud-icon">
+        <motion.div
+          className="cloud-shape cloud-1"
+          animate={{ x: [-5, 5, -5] }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <WiCloudy className="weather-icon cloud-icon-inner" />
+        </motion.div>
+        <motion.div
+          className="cloud-shape cloud-2"
+          animate={{ x: [3, -3, 3] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        >
+          <WiCloudy className="weather-icon cloud-icon-inner cloud-secondary" />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Thunderstorm
+  if (cond.includes('thunder') || cond.includes('storm')) {
+    return (
+      <div className="animated-icon-container thunder-icon">
+        <motion.div
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <WiThunderstorm className="weather-icon" />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Snow
+  if (cond.includes('snow') || cond.includes('blizzard')) {
+    return (
+      <div className="animated-icon-container snow-icon">
+        <motion.div
+          animate={{ y: [0, 15, 0], rotate: [0, 180, 360] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <WiSnow className="weather-icon" />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Fog / Mist
+  if (cond.includes('fog') || cond.includes('mist') || cond.includes('haze')) {
+    return (
+      <div className="animated-icon-container fog-icon">
+        <motion.div
+          animate={{ x: [-3, 3, -3], opacity: [0.6, 0.9, 0.6] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <WiFog className="weather-icon" />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Fallback with subtle pulse
+  return (
+    <div className="animated-icon-container fallback-icon">
+      <motion.div
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        {isDay ? (
+          <WiDaySunny className="weather-icon" />
+        ) : (
+          <WiNightClear className="weather-icon" />
+        )}
+      </motion.div>
+    </div>
+  );
 };
 
 function Weather({ data, units }) {
@@ -36,19 +137,18 @@ function Weather({ data, units }) {
   const condition = weather[0].main.toLowerCase();
   const unitSymbol = units === 'metric' ? '°C' : '°F';
 
-  const bgClass = `${condition}-${isDay ? 'day' : 'night'}`;
-
   return (
-    <div className={`card weather-card text-white shadow p-4 my-4 ${bgClass}`}>
-      <Clouds />
-      
+    <motion.div
+      className="weather-card-glass weather-card text-white shadow p-4 my-4"
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+    >
       <div className="weather-content">
         <h2 className="mb-3 text-center weather-title">{name}, {sys.country}</h2>
 
         <div className="weather-main-info d-flex flex-column align-items-center mb-4">
-          <div className="weather-icon-wrapper">
-            {getWeatherIcon(condition, isDay)}
-          </div>
+          <AnimatedWeatherIcon condition={condition} isDay={isDay} />
           <h4 className="text-capitalize text-center weather-condition">
             {weather[0].description}
           </h4>
@@ -116,7 +216,7 @@ function Weather({ data, units }) {
           🕒 <strong>Local Time:</strong> {now.toLocaleTimeString()} ({now.toDateString()})
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
