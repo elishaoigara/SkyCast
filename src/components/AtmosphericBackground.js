@@ -32,8 +32,6 @@ const conditionPalettes = {
 
 const defaultPalette = conditionPalettes.clear;
 
-const palette = conditionPalettes[condition] || defaultPalette;
-
 const orbVariants = {
   animate: (custom) => ({
     x: [0, custom.xDrift, 0],
@@ -52,6 +50,8 @@ const particleVariants = {
 };
 
 function AtmosphericBackground({ condition }) {
+  const palette = useMemo(() => conditionPalettes[condition] || defaultPalette, [condition]);
+
   const particles = useMemo(() => {
     const count = window.innerWidth < 768 ? 15 : 30;
     return Array.from({ length: count }, (_, i) => ({
