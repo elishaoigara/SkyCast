@@ -2,51 +2,48 @@ import React, { useState } from 'react';
 import GeolocationButton from './GeolocationButton';
 import './SearchBar.css';
 
-function SearchBar({ onSearch, loading, geoLoading, onLocationFound }) {
-  const [city, setCity] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
+const SearchBar = ({ onSearch, loading, geoLoading, onLocationFound }) => {
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (city.trim()) {
-      onSearch(city);
-      setCity('');
+    if (searchTerm.trim()) {
+      await onSearch(searchTerm.trim());
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="my-4">
-      <div className={`input-group shadow-sm search-bar-container ${isFocused ? 'search-bar-focused' : ''}`}>
+    <div className="search-bar-container">
+      <form onSubmit={handleSubmit} className="search-bar">
         <input
           type="text"
-          className={`form-control bg-primary text-white border-0 py-2 px-4 ${isFocused ? 'search-input-focused' : ''}`}
-          placeholder="🔍 Search for a city..."
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          disabled={loading || geoLoading}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          aria-label="Search for a city"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Enter city name..."
+          className="search-input"
+          disabled={loading}
         />
-        <button
-          type="submit"
-          className={`btn btn-info text-white px-4 ${isFocused ? 'search-btn-focused' : ''}`}
-          disabled={loading || geoLoading || !city.trim()}
-          aria-label="Search"
+        <button 
+          type="submit" 
+          className="search-button"
+          disabled={loading || !searchTerm.trim()}
         >
           {loading ? (
-            <span className="custom-spinner" role="status" aria-hidden="true"></span>
+            <>
+              <span className="loading-spinner"></span>
+              Searching...
+            </>
           ) : (
-            'Go'
+            'Search'
           )}
         </button>
         <GeolocationButton 
           onLocationFound={onLocationFound} 
-          loading={geoLoading}
+          loading={geoLoading} 
         />
-      </div>
-    </form>
+      </form>
+    </div>
   );
-}
+};
 
 export default SearchBar;

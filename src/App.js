@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WeatherProvider, useWeather } from './context/WeatherContext';
 import SearchBar from './components/SearchBar';
 import Weather from './components/Weather';
@@ -28,22 +28,26 @@ function AppContent() {
     weatherData,
     forecastData,
     loading,
-    error
+    error,
+    fetchWeather,
+    fetchForecast
   } = useWeather();
   
   const [geoLoading, setGeoLoading] = useState(false);
 
   const handleSearch = async (city) => {
-    // In a real app, this would fetch weather data
-    // For now, we'll just simulate the process
-    console.log(`Searching for city: ${city}`);
+    try {
+      await fetchWeather(city);
+    } catch (err) {
+      console.error('Error searching for city:', err);
+    }
   };
 
   const handleLocationFound = async (position) => {
     setGeoLoading(true);
     try {
-      // In a real app, this would fetch weather data based on coordinates
-      console.log(`Location found: ${position.coords.latitude}, ${position.coords.longitude}`);
+      const { latitude, longitude } = position.coords;
+      await fetchWeather(`${latitude},${longitude}`);
     } catch (err) {
       console.error('Error getting location:', err);
     } finally {

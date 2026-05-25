@@ -43,6 +43,58 @@ export const WeatherProvider = ({ children }) => {
     setUnits(prev => prev === 'metric' ? 'imperial' : 'metric');
   };
 
+  const fetchWeather = async (query) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Check if query is coordinates
+      const isCoordinates = query.includes(',');
+      let url;
+      
+      if (isCoordinates) {
+        const [lat, lon] = query.split(',');
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${process.env.REACT_APP_WEATHER_API_KEY}`;
+      } else {
+        url = `https://api.openweathermap.org/data/2.5/weather?q=${query}&units=${units}&appid=${process.env.REACT_APP_WEATHER_API_KEY}`;
+      }
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch weather data');
+      }
+      
+      const data = await response.json();
+      setWeatherData(data);
+      
+      // Fetch forecast data as well
+      await fetchForecast(data.coord.lat, data.coord.lon);
+    } catch (err) {
+      setError(err.message || 'An error occurred while fetching weather data');
+      setWeatherData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchForecast = async (lat, lon) => {
+    try {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${units}&appid=${process.env.REACT_APP_WEATHER_API_KEY}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch forecast data');
+      }
+      
+      const data = await response.json();
+      setForecastData(data);
+    } catch (err) {
+      console.error('Error fetching forecast:', err);
+    }
+  };
+
   const value = {
     currentTheme,
     setCurrentTheme,
@@ -57,7 +109,9 @@ export const WeatherProvider = ({ children }) => {
     loading,
     setLoading,
     error,
-    setError
+    setError,
+    fetchWeather,
+    fetchForecast
   };
 
   return (
