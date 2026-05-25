@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { WeatherProvider, useWeather } from './context/WeatherContext';
 import SearchBar from './components/SearchBar';
 import Weather from './components/Weather';
@@ -29,8 +29,7 @@ function AppContent() {
     forecastData,
     loading,
     error,
-    fetchWeather,
-    fetchForecast
+    fetchWeather
   } = useWeather();
   
   const [geoLoading, setGeoLoading] = useState(false);
