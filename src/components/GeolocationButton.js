@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WiLocationArrow } from 'react-icons/wi';
+import { WiCompass } from 'react-icons/wi';
 import './GeolocationButton.css';
 
 function GeolocationButton({ onLocationFound, loading }) {
@@ -88,7 +88,7 @@ function GeolocationButton({ onLocationFound, loading }) {
         {loading ? (
           <div className="geolocation-spinner"></div>
         ) : (
-          <WiLocationArrow className="geolocation-icon" />
+          <WiCompass className="geolocation-icon" />
         )}
       </button>
       {error && (
