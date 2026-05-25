@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { WiThunderstorm, WiRain, WiSnow, WiFog, WiDaySunny, WiNightClear, WiNightCloudy, WiCloudy } from 'react-icons/wi';
+import { WiThunderstorm, WiSnow, WiFog, WiDaySunny, WiNightClear, WiCloudy } from 'react-icons/wi';
 import './Weather.css';
 
 const AnimatedWeatherIcon = ({ condition, isDay }) => {
@@ -134,7 +134,7 @@ function Weather({ data, units }) {
 
   const now = new Date(dt * 1000);
   const isDay = dt > sys.sunrise && dt < sys.sunset;
-  const condition = weather[0].main.toLowerCase();
+  const condition = weather[0].Main.toLowerCase();
   const unitSymbol = units === 'metric' ? '°C' : '°F';
 
   return (
