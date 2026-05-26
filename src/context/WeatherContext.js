@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import apiConfig from '../config/api';
 
-// Create the context
 const WeatherContext = createContext();
 
-// Custom hook to use the weather context
 export const useWeather = () => {
   const context = useContext(WeatherContext);
   if (!context) {
@@ -12,77 +11,64 @@ export const useWeather = () => {
   return context;
 };
 
-// Provider component
 export const WeatherProvider = ({ children }) => {
-  // State for theme (dark/light)
   const [currentTheme, setCurrentTheme] = useState(() => {
-    // Check localStorage first, then system preference
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) return savedTheme;
     
-    // Check system preference
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
       return 'light';
     }
     return 'dark';
   });
 
-  // State for units (metric/imperial)
   const [units, setUnits] = useState(() => {
     return localStorage.getItem('units') || 'metric';
   });
 
-  // State for weather data
   const [weatherData, setWeatherData] = useState(null);
   const [forecastData, setForecastData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Apply theme to document
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', currentTheme);
     localStorage.setItem('theme', currentTheme);
   }, [currentTheme]);
 
-  // Save units preference
   useEffect(() => {
     localStorage.setItem('units', units);
   }, [units]);
 
-  // Toggle theme function
   const toggleTheme = () => {
     setCurrentTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  // Toggle units function
   const toggleUnits = () => {
     setUnits(prev => prev === 'metric' ? 'imperial' : 'metric');
   };
 
-  // Fetch weather data
   const fetchWeather = async (city) => {
     setLoading(true);
     setError(null);
     
     try {
-      const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
+      apiConfig.validateConfig(); // Validate API key
       
-      if (!apiKey) {
-        throw new Error('API key missing: set REACT_APP_WEATHER_API_KEY in .env');
-      }
-      
-      // Determine if input is coordinates or city name
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       let url;
       if (city.includes(',')) {
-        // Coordinates format: "lat,lon"
         const [lat, lon] = city.split(',');
-        url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${units}`;
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiConfig.weatherApiKey}&units=${units}`;
       } else {
-        // City name
-        url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=${units}`;
+        url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiConfig.weatherApiKey}&units=${units}`;
       }
       
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      
       const data = await response.json();
       
       if (data.cod === '404' || data.cod === 404) {
@@ -95,16 +81,15 @@ export const WeatherProvider = ({ children }) => {
       
       setWeatherData(data);
       
-      // Also fetch forecast data
       let forecastUrl;
       if (city.includes(',')) {
         const [lat, lon] = city.split(',');
-        forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${units}`;
+        forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiConfig.weatherApiKey}&units=${units}`;
       } else {
-        forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${apiKey}&units=${units}`;
+        forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${apiConfig.weatherApiKey}&units=${units}`;
       }
       
-      const forecastResponse = await fetch(forecastUrl);
+      const forecastResponse = await fetch(forecastUrl, { signal: controller.signal });
       const forecastJson = await forecastResponse.json();
       
       if (forecastResponse.ok) {
@@ -112,14 +97,17 @@ export const WeatherProvider = ({ children }) => {
       }
       
     } catch (err) {
-      setError(err.message);
+      if (err.name === 'AbortError') {
+        setError('Request timed out');
+      } else {
+        setError(err.message);
+      }
       console.error('Error fetching weather:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Context value
   const value = {
     currentTheme,
     toggleTheme,

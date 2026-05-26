@@ -22,16 +22,18 @@ const SearchBar = ({ onSearch, loading, geoLoading, onLocationFound }) => {
           placeholder="Enter city name..."
           className="search-input"
           disabled={loading}
+          aria-label="Enter city name to search for weather"
         />
         <button 
           type="submit" 
           className="search-button"
           disabled={loading || !searchTerm.trim()}
+          aria-label="Search for weather"
         >
           {loading ? (
             <>
-              <span className="loading-spinner"></span>
-              Searching...
+              <span className="loading-spinner" aria-hidden="true"></span>
+              <span aria-live="polite">Searching...</span>
             </>
           ) : (
             'Search'
@@ -46,4 +48,4 @@ const SearchBar = ({ onSearch, loading, geoLoading, onLocationFound }) => {
   );
 };
 
-export default SearchBar;
+export default React.memo(SearchBar);

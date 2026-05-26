@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { WeatherProvider, useWeather } from './context/WeatherContext';
 import SearchBar from './components/SearchBar';
 import Weather from './components/Weather';
@@ -9,16 +9,6 @@ import Footer from './components/Footer';
 import AtmosphericBackground from './components/AtmosphericBackground';
 import './App.css';
 
-// Main App component wrapped with WeatherProvider
-function App() {
-  return (
-    <WeatherProvider>
-      <AppContent />
-    </WeatherProvider>
-  );
-}
-
-// Content component that uses the WeatherContext
 function AppContent() {
   const {
     currentTheme,
@@ -43,15 +33,15 @@ function AppContent() {
     }
   }, []);
 
-  const handleSearch = async (city) => {
+  const handleSearch = useCallback(async (city) => {
     try {
       await fetchWeather(city);
     } catch (err) {
       console.error('Error searching for city:', err);
     }
-  };
+  }, [fetchWeather]);
 
-  const handleLocationFound = async (position) => {
+  const handleLocationFound = useCallback(async (position) => {
     setGeoLoading(true);
     try {
       const { latitude, longitude } = position.coords;
@@ -61,7 +51,7 @@ function AppContent() {
     } finally {
       setGeoLoading(false);
     }
-  };
+  }, [fetchWeather]);
 
   return (
     <div className="min-vh-100 d-flex flex-column">
@@ -118,6 +108,14 @@ function AppContent() {
 
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <WeatherProvider>
+      <AppContent />
+    </WeatherProvider>
   );
 }
 

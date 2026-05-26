@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { WiDaySunny, WiCloudy, WiRain, WiSnow, WiThunderstorm, WiFog, WiNightClear } from 'react-icons/wi';
 import './Forecast.css';
@@ -64,36 +64,54 @@ function Forecast({ lat, lon, units }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const fetchForecast = useCallback(async () => {
     if (!lat || !lon) return;
 
-    const fetchForecast = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
-        const unitParam = units === 'metric' ? 'metric' : 'imperial';
-        const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unitParam}`;
-        
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch forecast data');
-        }
-        
-        const data = await response.json();
-        const groupedData = groupForecastsByDay(data.list);
-        setForecastData(groupedData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    fetchForecast();
+      const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
+      if (!apiKey) {
+        throw new Error('Weather API key is missing');
+      }
+      
+      const unitParam = units === 'metric' ? 'metric' : 'imperial';
+      const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unitParam}`;
+      
+      const response = await fetch(url, { signal: controller.signal });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch forecast data');
+      }
+      
+      const data = await response.json();
+      const groupedData = groupForecastsByDay(data.list);
+      setForecastData(groupedData);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        setError('Request timed out');
+      } else {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   }, [lat, lon, units]);
+
+  useEffect(() => {
+    fetchForecast();
+    
+    // Cleanup function
+    return () => {
+      // Any cleanup needed
+    };
+  }, [fetchForecast]);
 
   if (loading) {
     return (
@@ -146,7 +164,7 @@ function Forecast({ lat, lon, units }) {
             <div className="forecast-icon-wrapper">
               {getWeatherIcon(day.condition)}
             </div>
-            <div className="forecast-condition">{day.condition}</div>
+            <div className="forecast-condition">{day.description}</div>
             <div className="forecast-temps">
               <span className="forecast-temp-high">{Math.round(day.tempMax)}°</span>
               <span className="forecast-temp-low">{Math.round(day.tempMin)}°</span>
@@ -158,4 +176,4 @@ function Forecast({ lat, lon, units }) {
   );
 }
 
-export default Forecast;
+export default React.memo(Forecast);

@@ -17,7 +17,6 @@ function GeolocationButton({ onLocationFound, loading }) {
         const { latitude, longitude } = position.coords;
         
         try {
-          // Reverse geocode using OpenWeatherMap
           const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
           const reverseGeoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${apiKey}`;
           
@@ -97,4 +96,4 @@ function GeolocationButton({ onLocationFound, loading }) {
   );
 }
 
-export default GeolocationButton;
+export default React.memo(GeolocationButton);
