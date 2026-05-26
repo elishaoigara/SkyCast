@@ -1,99 +1,91 @@
 import React, { useState } from 'react';
-import './GeolocationButton.css';
+import apiConfig from '../config/api';
 
-function GeolocationButton({ onLocationFound, loading }) {
+const GeolocationButton = ({ onLocationFound, loading }) => {
   const [error, setError] = useState(null);
 
-  const handleGeolocation = () => {
+  const handleClick = async () => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser');
       return;
     }
 
     setError(null);
-    
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        
-        try {
-          const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
-          const reverseGeoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${apiKey}`;
-          
-          const response = await fetch(reverseGeoUrl);
-          
-          if (!response.ok) {
-            throw new Error('Failed to get location name');
-          }
-          
-          const geoData = await response.json();
-          
-          if (geoData && geoData.length > 0) {
-            const location = geoData[0];
-            onLocationFound({
-              lat: latitude,
-              lon: longitude,
-              name: `${location.name}, ${location.country}`
-            });
-          } else {
-            onLocationFound({
-              lat: latitude,
-              lon: longitude,
-              name: 'Current Location'
-            });
-          }
-        } catch (err) {
-          setError(err.message);
-          onLocationFound({
-            lat: latitude,
-            lon: longitude,
-            name: 'Current Location'
-          });
+
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      
+      // Try to get city name via reverse geocoding
+      let cityName = '';
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${apiConfig.weatherApiKey}`
+        );
+        const data = await response.json();
+        if (data && data.length > 0) {
+          cityName = data[0].name;
         }
-      },
-      (err) => {
-        switch (err.code) {
-          case err.PERMISSION_DENIED:
-            setError('Location permission denied. Please enable location access.');
-            break;
-          case err.POSITION_UNAVAILABLE:
-            setError('Location information unavailable.');
-            break;
-          case err.TIMEOUT:
-            setError('Location request timed out.');
-            break;
-          default:
-            setError('An unknown error occurred.');
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+      } catch (err) {
+        console.warn('Could not get city name:', err);
       }
-    );
+
+      onLocationFound({ 
+        lat: latitude, 
+        lon: longitude,
+        name: cityName || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`
+      });
+    } catch (err) {
+      if (err.code === 1) {
+        setError('Location permission denied. Please enable location access.');
+      } else if (err.code === 2) {
+        setError('Location unavailable. Please try again.');
+      } else if (err.code === 3) {
+        setError('Location request timed out. Please try again.');
+      } else {
+        setError('Unable to get your location');
+      }
+      console.error('Geolocation error:', err);
+    }
   };
 
   return (
-    <div className="geolocation-wrapper">
+    <div className="d-inline-block">
       <button
-        className={`geolocation-btn ${loading ? 'loading' : ''}`}
-        onClick={handleGeolocation}
+        type="button"
+        onClick={handleClick}
         disabled={loading}
-        aria-label="Detect my location"
-        title="Detect my location"
+        className="btn btn-outline-light d-flex align-items-center gap-2"
+        aria-label="Use my current location"
       >
         {loading ? (
-          <div className="geolocation-spinner"></div>
+          <>
+            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Locating...</span>
+          </>
         ) : (
-          <i className="bi bi-geo-alt-fill geolocation-icon"></i>
+          <>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+            </svg>
+            <span>My Location</span>
+          </>
         )}
       </button>
       {error && (
-        <div className="geolocation-error">{error}</div>
+        <div className="alert alert-danger mt-2 py-1 px-2 small">
+          {error}
+        </div>
       )}
     </div>
   );
-}
+};
 
 export default React.memo(GeolocationButton);

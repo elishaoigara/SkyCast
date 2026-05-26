@@ -1,103 +1,44 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { WiDaySunny, WiCloudy, WiRain, WiSnow, WiThunderstorm, WiFog, WiNightClear } from 'react-icons/wi';
-import './Forecast.css';
+import apiConfig from '../config/api';
 
-const getWeatherIcon = (condition) => {
-  const conditionLower = condition.toLowerCase();
-  
-  if (conditionLower.includes('thunder') || conditionLower.includes('storm')) {
-    return <WiThunderstorm className="forecast-icon" />;
-  } else if (conditionLower.includes('drizzle') || conditionLower.includes('rain')) {
-    return <WiRain className="forecast-icon" />;
-  } else if (conditionLower.includes('snow') || conditionLower.includes('blizzard')) {
-    return <WiSnow className="forecast-icon" />;
-  } else if (conditionLower.includes('clear') || conditionLower.includes('sunny')) {
-    return <WiDaySunny className="forecast-icon" />;
-  } else if (conditionLower.includes('cloud')) {
-    return <WiCloudy className="forecast-icon" />;
-  } else if (conditionLower.includes('fog') || conditionLower.includes('mist')) {
-    return <WiFog className="forecast-icon" />;
-  } else if (conditionLower.includes('night')) {
-    return <WiNightClear className="forecast-icon" />;
-  }
-  
-  return <WiDaySunny className="forecast-icon" />;
-};
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const options = { weekday: 'short', month: 'short', day: 'numeric' };
-  return date.toLocaleDateString('en-US', options);
-};
-
-const groupForecastsByDay = (list) => {
-  const grouped = {};
-  
-  list.forEach(item => {
-    const date = new Date(item.dt * 1000).toLocaleDateString();
-    
-    if (!grouped[date]) {
-      grouped[date] = {
-        date: item.dt * 1000,
-        temps: [],
-        conditions: [],
-        icon: item.weather[0].main
-      };
-    }
-    
-    grouped[date].temps.push(item.main.temp);
-    grouped[date].conditions.push(item.weather[0].description);
-  });
-  
-  return Object.values(grouped).map(day => ({
-    date: day.date,
-    tempMax: Math.max(...day.temps),
-    tempMin: Math.min(...day.temps),
-    condition: day.icon,
-    description: day.conditions[0]
-  })).slice(0, 5);
-};
-
-function Forecast({ lat, lon, units }) {
-  const [forecastData, setForecastData] = useState(null);
-  const [loading, setLoading] = useState(true);
+const Forecast = ({ lat, lon, units }) => {
+  const [forecast, setForecast] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchForecast = useCallback(async () => {
+  const fetchForecast = useCallback(async (signal) => {
     if (!lat || !lon) return;
 
     setLoading(true);
     setError(null);
-    
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
-      if (!apiKey) {
-        throw new Error('Weather API key is missing');
-      }
+    try {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiConfig.weatherApiKey}&units=${units}`;
       
-      const unitParam = units === 'metric' ? 'metric' : 'imperial';
-      const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unitParam}`;
-      
-      const response = await fetch(url, { signal: controller.signal });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch forecast data');
-      }
-      
+      const response = await fetch(url, { signal });
       const data = await response.json();
-      const groupedData = groupForecastsByDay(data.list);
-      setForecastData(groupedData);
-    } catch (err) {
-      if (err.name === 'AbortError') {
-        setError('Request timed out');
+      
+      if (response.ok) {
+        // Group forecast by day and get one entry per day
+        const dailyForecasts = {};
+        data.list.forEach(item => {
+          const date = item.dt_txt.split(' ')[0];
+          if (!dailyForecasts[date]) {
+            dailyForecasts[date] = item;
+          }
+        });
+        
+        // Convert to array and take next 5 days
+        const forecastArray = Object.values(dailyForecasts).slice(1, 6);
+        setForecast(forecastArray);
       } else {
+        setError(data.message || 'Failed to fetch forecast');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
         setError(err.message);
+        console.error('Error fetching forecast:', err);
       }
     } finally {
       setLoading(false);
@@ -105,30 +46,29 @@ function Forecast({ lat, lon, units }) {
   }, [lat, lon, units]);
 
   useEffect(() => {
-    fetchForecast();
+    const controller = new AbortController();
     
-    // Cleanup function
+    fetchForecast(controller.signal);
+
     return () => {
-      // Any cleanup needed
+      controller.abort();
     };
   }, [fetchForecast]);
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  };
+
+  const formatTemp = (temp) => {
+    return Math.round(temp);
+  };
+
   if (loading) {
     return (
-      <div className="forecast-container">
-        <h3 className="forecast-title">5-Day Forecast</h3>
-        <div className="forecast-grid">
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="forecast-card loading"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <div className="forecast-loading"></div>
-            </motion.div>
-          ))}
+      <div className="text-center my-4">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading forecast...</span>
         </div>
       </div>
     );
@@ -136,44 +76,55 @@ function Forecast({ lat, lon, units }) {
 
   if (error) {
     return (
-      <div className="forecast-container">
-        <h3 className="forecast-title">5-Day Forecast</h3>
-        <div className="forecast-error">{error}</div>
+      <div className="alert alert-warning mt-3">
+        Unable to load forecast: {error}
       </div>
     );
   }
 
-  if (!forecastData || forecastData.length === 0) {
+  if (!forecast || forecast.length === 0) {
     return null;
   }
 
   return (
-    <div className="forecast-container">
-      <h3 className="forecast-title">5-Day Forecast</h3>
-      <div className="forecast-grid">
-        {forecastData.map((day, index) => (
-          <motion.div
-            key={day.date}
-            className="forecast-card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.3 }}
-            whileHover={{ scale: 1.05, y: -5 }}
+    <motion.div 
+      className="glass-card p-4 mt-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <h3 className="mb-3">5-Day Forecast</h3>
+      <div className="row g-3">
+        {forecast.map((day, index) => (
+          <motion.div 
+            key={day.dt}
+            className="col-6 col-md-4 col-lg"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
           >
-            <div className="forecast-date">{formatDate(day.date)}</div>
-            <div className="forecast-icon-wrapper">
-              {getWeatherIcon(day.condition)}
-            </div>
-            <div className="forecast-condition">{day.description}</div>
-            <div className="forecast-temps">
-              <span className="forecast-temp-high">{Math.round(day.tempMax)}°</span>
-              <span className="forecast-temp-low">{Math.round(day.tempMin)}°</span>
+            <div className="forecast-day text-center p-3 rounded">
+              <div className="fw-bold mb-2">{formatDate(day.dt_txt)}</div>
+              <img 
+                src={`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`}
+                alt={day.weather[0].description}
+                className="mb-2"
+              />
+              <div className="fs-4 fw-bold">
+                {formatTemp(day.main.temp)}°
+              </div>
+              <div className="small text-muted">
+                {day.weather[0].main}
+              </div>
+              <div className="small mt-1">
+                H: {formatTemp(day.main.temp_max)}° L: {formatTemp(day.main.temp_min)}°
+              </div>
             </div>
           </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
-}
+};
 
 export default React.memo(Forecast);

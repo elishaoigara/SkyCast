@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import apiConfig from '../config/api';
 
 const WeatherContext = createContext();
@@ -30,6 +30,15 @@ export const WeatherProvider = ({ children }) => {
   const [forecastData, setForecastData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+  const [searchHistory, setSearchHistory] = useState(() => {
+    try {
+      const saved = localStorage.getItem('searchHistory');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', currentTheme);
@@ -48,16 +57,31 @@ export const WeatherProvider = ({ children }) => {
     setUnits(prev => prev === 'metric' ? 'imperial' : 'metric');
   };
 
-  const fetchWeather = async (city) => {
+  const addToHistory = useCallback((city) => {
+    setSearchHistory(prev => {
+      const filtered = prev.filter(item => item.toLowerCase() !== city.toLowerCase());
+      const updated = [city, ...filtered].slice(0, 10);
+      localStorage.setItem('searchHistory', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const clearHistory = useCallback(() => {
+    setSearchHistory([]);
+    localStorage.removeItem('searchHistory');
+  }, []);
+
+  const fetchWeather = useCallback(async (city) => {
     setLoading(true);
     setError(null);
+    setAlerts([]);
     
-    try {
-      apiConfig.validateConfig(); // Validate API key
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
+    try {
+      apiConfig.validateConfig();
+      
       let url;
       if (city.includes(',')) {
         const [lat, lon] = city.split(',');
@@ -67,7 +91,6 @@ export const WeatherProvider = ({ children }) => {
       }
       
       const response = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeoutId);
       
       const data = await response.json();
       
@@ -80,6 +103,16 @@ export const WeatherProvider = ({ children }) => {
       }
       
       setWeatherData(data);
+
+      // Store alerts if present
+      if (data.alerts && Array.isArray(data.alerts)) {
+        setAlerts(data.alerts);
+      }
+
+      // Add to search history only for city name searches (not coordinates)
+      if (!city.includes(',')) {
+        addToHistory(city);
+      }
       
       let forecastUrl;
       if (city.includes(',')) {
@@ -104,9 +137,10 @@ export const WeatherProvider = ({ children }) => {
       }
       console.error('Error fetching weather:', err);
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
-  };
+  }, [units, addToHistory]);
 
   const value = {
     currentTheme,
@@ -117,7 +151,11 @@ export const WeatherProvider = ({ children }) => {
     forecastData,
     loading,
     error,
-    fetchWeather
+    fetchWeather,
+    alerts,
+    searchHistory,
+    addToHistory,
+    clearHistory
   };
 
   return (

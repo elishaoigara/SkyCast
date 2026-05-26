@@ -7,6 +7,7 @@ import ThemeToggle from './components/ThemeToggle';
 import UnitToggle from './components/UnitToggle';
 import Footer from './components/Footer';
 import AtmosphericBackground from './components/AtmosphericBackground';
+import apiConfig from './config/api';
 import './App.css';
 
 function AppContent() {
@@ -19,17 +20,18 @@ function AppContent() {
     forecastData,
     loading,
     error,
-    fetchWeather
+    fetchWeather,
+    alerts
   } = useWeather();
   
   const [geoLoading, setGeoLoading] = useState(false);
+  const [dismissedAlerts, setDismissedAlerts] = useState(new Set());
 
   useEffect(() => {
-    if (!process.env.REACT_APP_WEATHER_API_KEY) {
-      console.warn(
-        'WARNING: REACT_APP_WEATHER_API_KEY is not set. ' +
-        'Please create a .env file with REACT_APP_WEATHER_API_KEY=your_api_key'
-      );
+    try {
+      apiConfig.validateConfig();
+    } catch (err) {
+      console.warn(err.message);
     }
   }, []);
 
@@ -41,11 +43,10 @@ function AppContent() {
     }
   }, [fetchWeather]);
 
-  const handleLocationFound = useCallback(async (position) => {
+  const handleLocationFound = useCallback(async ({ lat, lon }) => {
     setGeoLoading(true);
     try {
-      const { latitude, longitude } = position.coords;
-      await fetchWeather(`${latitude},${longitude}`);
+      await fetchWeather(`${lat},${lon}`);
     } catch (err) {
       console.error('Error getting location:', err);
     } finally {
@@ -53,9 +54,19 @@ function AppContent() {
     }
   }, [fetchWeather]);
 
+  const dismissAlert = useCallback((index) => {
+    setDismissedAlerts(prev => {
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  }, []);
+
+  const visibleAlerts = alerts?.filter((_, i) => !dismissedAlerts.has(i)) || [];
+
   return (
     <div className="min-vh-100 d-flex flex-column">
-      <AtmosphericBackground />
+      <AtmosphericBackground condition={weatherData?.weather?.[0]?.main?.toLowerCase()} />
       
       <header className="bg-dark text-white py-3 shadow-sm">
         <div className="container d-flex justify-content-between align-items-center">
@@ -88,6 +99,33 @@ function AppContent() {
             {error && (
               <div className="alert alert-danger mt-3">
                 {error}
+              </div>
+            )}
+
+            {visibleAlerts.length > 0 && (
+              <div className="mt-3">
+                {visibleAlerts.map((alert, idx) => {
+                  const originalIndex = alerts.indexOf(alert);
+                  return (
+                    <div
+                      key={`${alert.event}-${originalIndex}`}
+                      className="alert alert-warning alert-dismissible fade show"
+                      role="alert"
+                    >
+                      <strong>⚠️ {alert.event}</strong>
+                      {alert.sender_name && (
+                        <span className="d-block small text-muted">Source: {alert.sender_name}</span>
+                      )}
+                      <p className="mb-0 mt-1">{alert.description}</p>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        aria-label="Dismiss alert"
+                        onClick={() => dismissAlert(originalIndex)}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
             
