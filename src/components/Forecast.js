@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import apiConfig from '../config/api';
+import './Forecast.css';
 
 const Forecast = ({ lat, lon, units }) => {
   const [forecast, setForecast] = useState(null);
@@ -66,18 +67,18 @@ const Forecast = ({ lat, lon, units }) => {
 
   if (loading) {
     return (
-      <div className="text-center my-4">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading forecast...</span>
-        </div>
+      <div className="forecast-container">
+        <div className="forecast-loading"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="alert alert-warning mt-3">
-        Unable to load forecast: {error}
+      <div className="forecast-container">
+        <div className="forecast-error">
+          Unable to load forecast: {error}
+        </div>
       </div>
     );
   }
@@ -88,37 +89,36 @@ const Forecast = ({ lat, lon, units }) => {
 
   return (
     <motion.div 
-      className="glass-card p-4 mt-4"
+      className="forecast-container"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <h3 className="mb-3">5-Day Forecast</h3>
-      <div className="row g-3">
+      <h3 className="forecast-title">5-Day Forecast</h3>
+      <div className="forecast-grid">
         {forecast.map((day, index) => (
           <motion.div 
             key={day.dt}
-            className="col-6 col-md-4 col-lg"
+            className="forecast-card"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
           >
-            <div className="forecast-day text-center p-3 rounded">
-              <div className="fw-bold mb-2">{formatDate(day.dt_txt)}</div>
+            <div className="forecast-date">{formatDate(day.dt_txt)}</div>
+            <div className="forecast-icon-wrapper">
               <img 
                 src={`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`}
                 alt={day.weather[0].description}
-                className="mb-2"
+                className="forecast-icon"
               />
-              <div className="fs-4 fw-bold">
-                {formatTemp(day.main.temp)}°
-              </div>
-              <div className="small text-muted">
-                {day.weather[0].main}
-              </div>
-              <div className="small mt-1">
-                H: {formatTemp(day.main.temp_max)}° L: {formatTemp(day.main.temp_min)}°
-              </div>
+            </div>
+            <div className="forecast-condition">
+              {day.weather[0].main}
+            </div>
+            <div className="forecast-temps">
+              <span className="forecast-temp-high">{formatTemp(day.main.temp_max)}°</span>
+              <span className="forecast-temps-divider"></span>
+              <span className="forecast-temp-low">{formatTemp(day.main.temp_min)}°</span>
             </div>
           </motion.div>
         ))}
