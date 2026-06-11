@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import apiConfig from '../config/api';
+import './GeolocationButton.css';
 
 const GeolocationButton = ({ onLocationFound, loading }) => {
   const [error, setError] = useState(null);
@@ -57,30 +58,25 @@ const GeolocationButton = ({ onLocationFound, loading }) => {
   };
 
   return (
-    <div className="d-inline-block">
+    <div className="geolocation-wrapper">
       <button
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className="btn btn-outline-light d-flex align-items-center gap-2"
+        className="geolocation-btn"
         aria-label="Use my current location"
+        title="Use my current location"
       >
         {loading ? (
-          <>
-            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span>Locating...</span>
-          </>
+          <span className="geolocation-spinner" role="status" aria-hidden="true"></span>
         ) : (
-          <>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-            </svg>
-            <span>My Location</span>
-          </>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" className="geolocation-icon">
+            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+          </svg>
         )}
       </button>
       {error && (
-        <div className="alert alert-danger mt-2 py-1 px-2 small">
+        <div className="geolocation-error">
           {error}
         </div>
       )}

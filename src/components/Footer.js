@@ -1,10 +1,11 @@
 // src
 import React from "react";
 import { FaGithub, FaCloudSun } from "react-icons/fa";
+import './Footer.css';
 
 function Footer() {
   return (
-    <footer className="bg-dark text-white text-center py-4 mt-5">
+    <footer className="footer">
       <div className="container">
         <div className="mb-2">
           <FaCloudSun size={20} className="me-1 mb-1" />
@@ -14,7 +15,7 @@ function Footer() {
           Built by{" "}
           <a
             href="https://github.com/elishaoigara"
-            className="text-light text-decoration-underline"
+            className="footer-link"
             target="_blank"
             rel="noreferrer"
           >
@@ -23,7 +24,7 @@ function Footer() {
           ·{" "}
           <a
             href="https://openweathermap.org/"
-            className="text-light text-decoration-underline"
+            className="footer-link"
             target="_blank"
             rel="noreferrer"
           >
@@ -33,7 +34,7 @@ function Footer() {
         <div className="mt-2">
           <a
             href="https://github.com/elishaoigara/SkyCast"
-            className="text-light"
+            className="footer-link"
             target="_blank"
             rel="noreferrer"
           >

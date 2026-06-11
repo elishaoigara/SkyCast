@@ -5,46 +5,30 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-[data-theme='light'] .theme-toggle-btn {
-  background: rgba(0, 0, 0, 0.1);
+  font-size: 1.5rem;
+  padding: 0;
+  line-height: 1;
 }
 
 .theme-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--accent-color);
   transform: rotate(15deg) scale(1.1);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
 [data-theme='light'] .theme-toggle-btn:hover {
-  background: rgba(0, 0, 0, 0.15);
-}
-
-.theme-icon {
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.sun-icon {
-  color: #ffd700;
-}
-
-.moon-icon {
-  color: #6c5ce7;
+  box-shadow: 0 0 12px rgba(0, 102, 255, 0.2);
 }
 
 @media (max-width: 768px) {
   .theme-toggle-btn {
     width: 40px;
     height: 40px;
-  }
-  
-  .theme-icon {
     font-size: 1.25rem;
   }
 }
@@ -53,9 +37,6 @@
   .theme-toggle-btn {
     width: 36px;
     height: 36px;
-  }
-  
-  .theme-icon {
     font-size: 1.1rem;
   }
 }

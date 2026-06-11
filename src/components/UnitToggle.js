@@ -3,16 +3,28 @@ import './UnitToggle.css';
 
 function UnitToggle({ units, onToggle }) {
   return (
-    <button
-      className="unit-toggle-btn"
-      onClick={onToggle}
-      aria-label={`Switch to ${units === 'metric' ? 'Fahrenheit' : 'Celsius'}`}
-      title={`Switch to ${units === 'metric' ? 'Fahrenheit' : 'Celsius'}`}
-    >
-      <span className="unit-label">
-        {units === 'metric' ? '°C' : '°F'}
-      </span>
-    </button>
+    <div className="unit-toggle" role="radiogroup" aria-label="Temperature unit">
+      <button
+        className={`unit-toggle-btn ${units === 'metric' ? 'active' : ''}`}
+        onClick={() => units !== 'metric' && onToggle()}
+        aria-label="Switch to Celsius"
+        title="Switch to Celsius"
+        role="radio"
+        aria-checked={units === 'metric'}
+      >
+        °C
+      </button>
+      <button
+        className={`unit-toggle-btn ${units === 'imperial' ? 'active' : ''}`}
+        onClick={() => units !== 'imperial' && onToggle()}
+        aria-label="Switch to Fahrenheit"
+        title="Switch to Fahrenheit"
+        role="radio"
+        aria-checked={units === 'imperial'}
+      >
+        °F
+      </button>
+    </div>
   );
 }
 
